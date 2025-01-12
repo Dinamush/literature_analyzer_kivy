@@ -1,0 +1,148 @@
+#:kivy 2.3.1
+#:import FadeTransition kivy.uix.screenmanager.FadeTransition
+#:import Animation kivy.animation.Animation
+
+ScreenManagement:
+    # Fade transition between screens
+    transition: FadeTransition(duration=0.6)
+    SplashScreen:
+        name: "splash"
+    MainScreen:
+        name: "main"
+
+<SplashScreen>:
+    # Fade this screen in when entering
+    on_pre_enter:
+        self.opacity = 0
+        Animation(opacity=1, d=2.0).start(self)
+
+    # (Optional) If you want it to auto-transition after 2s, 
+    # you could schedule it in on_enter or use your main.py logic.
+    # on_enter:
+    #     Clock.schedule_once(lambda dt: setattr(self.manager, "current", "main"), 2)
+
+    FloatLayout:
+        # A simple light background color for a modern look
+        canvas.before:
+            Color:
+                rgba: 1, 1, 1, 1  # White background
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        # Logo
+        Image:
+            source: "splash_logo.png"  # Provide your image
+            size_hint: 0.4, 0.4
+            pos_hint: {"center_x": 0.5, "center_y": 0.62}
+
+        # Company text under the logo
+        Label:
+            text: "Dinamus Intuitions"
+            font_size: "22sp"
+            color: 0, 0, 0, 1  # black text
+            pos_hint: {"center_x": 0.5, "center_y": 0.47}
+
+        # Tagline / app name
+        Label:
+            text: "Welcome to the Literacy Checker"
+            font_size: "18sp"
+            color: 0, 0, 0, 1
+            pos_hint: {"center_x": 0.5, "center_y": 0.37}
+
+
+<MainScreen>:
+    # Fade in the main screen on entry
+    on_pre_enter:
+        self.opacity = 0
+        Animation(opacity=1, d=0.7).start(self)
+
+    # Subtle background color for contrast
+    canvas.before:
+        Color:
+            rgba: 0.97, 0.97, 0.97, 1  # near-white background
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: 15
+        padding: 20
+
+        Label:
+            text: "Random Literacy Question"
+            font_size: "20sp"
+            bold: True
+            color: 0.15, 0.5, 0.8, 1
+            size_hint_y: None
+            height: self.texture_size[1] + 30
+
+        Label:
+            text: root.question_text
+            font_size: "16sp"
+            halign: "center"
+            valign: "middle"
+            color: 0, 0, 0, 1
+            text_size: self.width * 0.9, None
+            size_hint_y: None
+            height: self.texture_size[1] + 20
+
+        TextInput:
+            id: user_answer_input
+            hint_text: "Type your answer here..."
+            multiline: True
+            size_hint_y: 0.35
+            font_size: "16sp"
+            padding: 10
+            background_normal: ""
+            background_color: 1, 1, 1, 1
+            foreground_color: 0, 0, 0, 1
+            border: 2, 2, 2, 2
+
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: 50
+            spacing: 15
+
+            Button:
+                text: "Generate New Question"
+                background_normal: ""
+                background_color: 0.15, 0.5, 0.8, 1
+                color: 1, 1, 1, 1
+                bold: True
+                on_release:
+                    root.generate_question()
+                    user_answer_input.text = ""
+                    root.analysis_result = ""
+
+            Button:
+                text: "Analyze Answer"
+                background_normal: ""
+                background_color: 0.2, 0.6, 0.3, 1
+                color: 1, 1, 1, 1
+                bold: True
+                on_release:
+                    root.analyze_user_answer(user_answer_input.text)
+
+        Label:
+            text: "Analysis Result"
+            font_size: "20sp"
+            bold: True
+            color: 0.15, 0.5, 0.8, 1
+            size_hint_y: None
+            height: self.texture_size[1] + 20
+
+        ScrollView:
+            size_hint_y: 0.35
+            bar_width: 10
+            Label:
+                text: root.analysis_result
+                font_size: "16sp"
+                color: 0, 0, 0, 1
+                text_size: self.width * 0.9, None
+                size_hint_y: None
+                height: self.texture_size[1] + 20
+                halign: "left"
+                valign: "top"
